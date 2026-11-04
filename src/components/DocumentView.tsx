@@ -66,7 +66,7 @@ export function DocumentView({
   ].filter(Boolean);
 
   return (
-    <div className="card print-area overflow-hidden">
+    <div className="card paper print-area overflow-hidden">
       <div className="h-2" style={{ background: color }} />
       <div className="space-y-6 p-5 sm:p-8">
         {/* Cabeçalho */}

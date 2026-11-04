@@ -68,7 +68,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
             <h2 className="border-b border-slate-100 px-4 py-3 font-semibold">{title}</h2>
             {rank(t).length === 0 ? <p className="p-4 text-sm text-slate-500">Sem vendas no período.</p> : (
               <table className="w-full text-sm">
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="stagger divide-y divide-slate-100">
                   {rank(t).map(([name, v], i) => (
                     <tr key={name}>
                       <td className="w-8 px-4 py-2 text-slate-400">{i + 1}º</td>
@@ -100,7 +100,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
         <section className="card avoid-break">
           <h2 className="border-b border-slate-100 px-4 py-3 font-semibold">Pedidos do período</h2>
           {orders.length === 0 ? <p className="p-4 text-sm text-slate-500">Nenhum pedido.</p> : (
-            <div className="divide-y divide-slate-100">
+            <div className="stagger divide-y divide-slate-100">
               {orders.map((o) => (
                 <Link key={o.id} href={`/app/pedidos/${o.id}`} className="flex items-center justify-between gap-2 px-4 py-2 text-sm hover:bg-slate-50">
                   <span className="min-w-0 truncate">{date(o.createdAt)} · {ORDER_KIND[o.kind]} nº {o.code} · {o.client?.name ?? "—"}</span>

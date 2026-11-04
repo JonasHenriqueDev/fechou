@@ -321,8 +321,8 @@ export function DocumentEditor({
       {/* Seletor do catálogo */}
       {picker && (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-          <div className="absolute inset-0 bg-slate-900/40" onClick={() => setPicker(null)} />
-          <div className="relative flex max-h-[80vh] w-full max-w-lg flex-col rounded-t-3xl bg-white p-4 sm:rounded-3xl">
+          <div className="absolute inset-0 animate-fade-in bg-black/50" onClick={() => setPicker(null)} />
+          <div className="relative flex max-h-[80vh] w-full max-w-lg animate-sheet-up flex-col rounded-t-3xl bg-white p-4 shadow-2xl sm:animate-scale-in sm:rounded-3xl">
             <div className="mb-3 flex items-center justify-between">
               <h3 className="font-semibold">{picker === "SERVICE" ? "Serviços" : "Produtos"} do catálogo</h3>
               <button type="button" onClick={() => setPicker(null)} className="p-1 text-slate-500" aria-label="Fechar">

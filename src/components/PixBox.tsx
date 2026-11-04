@@ -34,7 +34,7 @@ export async function PixBox({ company, amount, txid, title = "Pague com Pix" }:
       </div>
       <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={qr} alt="QR Code Pix" className="h-44 w-44 rounded-lg border border-slate-200" />
+        <img src={qr} alt="QR Code Pix" className="paper h-44 w-44 rounded-lg border border-slate-200" />
         <div className="w-full min-w-0 flex-1 space-y-2 text-sm">
           <div>
             <div className="text-xs text-slate-500">Valor</div>

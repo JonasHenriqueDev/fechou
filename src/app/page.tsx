@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ThemeButton } from "@/components/ThemeToggle";
 import { getSession } from "@/lib/auth";
 import { Icon } from "@/components/Icon";
 
@@ -35,6 +36,7 @@ export default async function Home() {
             <img src="/icon.svg" alt="" className="h-8 w-8" /> Fechou
           </Link>
           <nav className="flex items-center gap-2">
+            <ThemeButton />
             <Link href="/gerador" className="hidden text-sm font-medium text-slate-600 hover:text-slate-900 sm:block">Gerador grátis</Link>
             {logged ? (
               <Link href="/app" className="btn-primary btn-sm">Abrir o app</Link>
@@ -50,7 +52,7 @@ export default async function Home() {
 
       <section className="bg-gradient-to-b from-brand-50 to-white">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 md:grid-cols-2 md:py-20">
-          <div>
+          <div className="animate-fade-up">
             <span className="badge bg-brand-100 text-brand-700">100% online · celular e computador · sem instalar nada</span>
             <h1 className="mt-4 text-4xl font-extrabold tracking-tight sm:text-5xl">
               Orçamentos profissionais em <span className="text-brand-600">menos de 1 minuto</span>

@@ -90,7 +90,7 @@ export function FreeGenerator() {
 
         {/* Prévia / impressão */}
         <div className="lg:sticky lg:top-6 lg:self-start">
-          <div className="card print-area p-6 text-sm">
+          <div className="card paper print-area p-6 text-sm">
             <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-4">
               <div className="flex items-start gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}

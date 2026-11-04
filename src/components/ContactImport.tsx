@@ -55,8 +55,8 @@ export function ContactImport() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-      <div className="absolute inset-0 bg-slate-900/40" onClick={() => setOpen(false)} />
-      <div className="relative w-full max-w-lg space-y-3 rounded-t-3xl bg-white p-5 sm:rounded-3xl">
+      <div className="absolute inset-0 animate-fade-in bg-black/50" onClick={() => setOpen(false)} />
+      <div className="relative w-full max-w-lg animate-sheet-up space-y-3 rounded-t-3xl bg-white p-5 shadow-2xl sm:animate-scale-in sm:rounded-3xl">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold">Importar contatos</h3>
           <button onClick={() => setOpen(false)} className="p-1 text-slate-500" aria-label="Fechar"><Icon name="x" /></button>

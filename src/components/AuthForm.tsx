@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { login, signup, type AuthState } from "@/actions/auth";
 import { SubmitButton } from "./client";
+import { ThemeButton } from "./ThemeToggle";
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [state, action] = useActionState<AuthState, FormData>(mode === "login" ? login : signup, undefined);
@@ -54,8 +55,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
 export function AuthCard({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
-    <div className="grid min-h-screen place-items-center bg-gradient-to-br from-brand-50 to-white px-4 py-10">
-      <div className="w-full max-w-sm">
+    <div className="relative grid min-h-screen place-items-center bg-gradient-to-br from-brand-50 to-white px-4 py-10">
+      <ThemeButton className="absolute right-4 top-4" />
+      <div className="w-full max-w-sm animate-fade-up">
         <Link href="/" className="mb-6 flex items-center justify-center gap-2 text-lg font-bold">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icon.svg" alt="" className="h-8 w-8" /> Fechou

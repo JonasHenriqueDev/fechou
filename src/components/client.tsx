@@ -49,22 +49,31 @@ export async function fileToImageUrl(file: File, max: number, folder: string) {
 export function SubmitButton({ children, className = "btn-primary", pendingText = "Salvando..." }: { children: React.ReactNode; className?: string; pendingText?: string }) {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" disabled={pending} className={className}>
-      {pending ? pendingText : children}
+    <button type="submit" disabled={pending} aria-busy={pending} className={className}>
+      {pending ? (
+        <>
+          <span className="spinner" aria-hidden /> {pendingText}
+        </>
+      ) : (
+        children
+      )}
     </button>
   );
 }
 
 export function ConfirmSubmit({ children, message, className = "btn-danger" }: { children: React.ReactNode; message: string; className?: string }) {
+  const { pending } = useFormStatus();
   return (
     <button
       type="submit"
+      disabled={pending}
+      aria-busy={pending}
       className={className}
       onClick={(e) => {
         if (!confirm(message)) e.preventDefault();
       }}
     >
-      {children}
+      {pending ? <span className="spinner" aria-hidden /> : children}
     </button>
   );
 }
@@ -76,13 +85,13 @@ export function ImageInput({ name, defaultValue, label = "Imagem", max = 1000, f
   const ref = useRef<HTMLInputElement>(null);
   return (
     <div>
-      <span className="label">{label}{uploading && <span className="ml-2 font-normal text-slate-400">enviando...</span>}</span>
+      <span className="label">{label}{uploading && <span className="ml-2 inline-flex items-center gap-1 font-normal normal-case text-slate-400"><span className="spinner h-3 w-3" /> enviando...</span>}</span>
       <input type="hidden" name={name} value={value} />
       <div className="flex items-center gap-3">
-        <button type="button" onClick={() => ref.current?.click()} className={`${className} grid place-items-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-slate-400 hover:border-brand-400`}>
+        <button type="button" onClick={() => ref.current?.click()} className={`${className} relative grid place-items-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-slate-400 transition hover:border-brand-400 hover:text-brand-500`}>
           {value ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={value} alt="" className="h-full w-full object-contain" />
+            <img src={value} alt="" className={`h-full w-full animate-fade-in object-contain transition-opacity ${uploading ? "opacity-60" : ""}`} />
           ) : (
             <Icon name="plus" className="h-6 w-6" />
           )}
@@ -142,7 +151,7 @@ export function SignaturePad({ onChange, height = 180 }: { onChange: (dataUrl: s
       <canvas
         ref={canvas}
         style={{ height, touchAction: "none" }}
-        className="w-full rounded-xl border border-slate-300 bg-white"
+        className="paper w-full rounded-xl border border-slate-300"
         onPointerDown={(e) => {
           drawing.current = true;
           const ctx = canvas.current!.getContext("2d")!;
@@ -195,7 +204,7 @@ export function CopyButton({ text, label = "Copiar", className = "btn-secondary 
         setTimeout(() => setOk(false), 1500);
       }}
     >
-      <Icon name={ok ? "check" : "copy"} className="h-4 w-4" /> {ok ? "Copiado!" : label}
+      <Icon key={String(ok)} name={ok ? "check" : "copy"} className={`h-4 w-4 ${ok ? "animate-pop text-emerald-600" : ""}`} /> {ok ? "Copiado!" : label}
     </button>
   );
 }
@@ -237,7 +246,7 @@ export function ShareButton({ url, title }: { url: string; title: string }) {
         setTimeout(() => setOk(false), 1500);
       }}
     >
-      <Icon name="link" className="h-4 w-4" /> {ok ? "Link copiado!" : "Compartilhar link"}
+      <Icon key={String(ok)} name={ok ? "check" : "link"} className={`h-4 w-4 ${ok ? "animate-pop text-emerald-600" : ""}`} /> {ok ? "Link copiado!" : "Compartilhar link"}
     </button>
   );
 }
@@ -273,7 +282,7 @@ export function TextShare({ phone, text, path, onSent }: { phone?: string | null
           onSent?.();
         }}
       >
-        <Icon name={ok ? "check" : "copy"} className="h-4 w-4" /> {ok ? "Copiado!" : "Copiar texto"}
+        <Icon key={String(ok)} name={ok ? "check" : "copy"} className={`h-4 w-4 ${ok ? "animate-pop text-emerald-600" : ""}`} /> {ok ? "Copiado!" : "Copiar texto"}
       </button>
     </div>
   );

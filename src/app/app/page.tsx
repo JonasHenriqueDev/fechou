@@ -67,14 +67,14 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="stagger grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Orçamentos no mês" value={String(quotesMonth)} hint={`${approvedMonth} aprovados`} tone="blue" />
         <Stat label="Recebido no mês" value={money(received._sum.amount)} tone="green" />
         <Stat label="A receber" value={money(receivable)} tone="amber" />
         <Stat label="Em atraso" value={money(overdue)} tone="red" />
       </div>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_360px]">
+      <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px] [&>*]:min-w-0">
         <section className="card">
           <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
             <h2 className="font-semibold">Últimos orçamentos</h2>
@@ -83,7 +83,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           {recent.length === 0 ? (
             <p className="p-6 text-center text-sm text-slate-500">Nenhum orçamento ainda.</p>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="stagger divide-y divide-slate-100">
               {recent.map((q) => (
                 <Link key={q.id} href={`/app/orcamentos/${q.id}`} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-slate-50">
                   <div className="min-w-0">
@@ -108,7 +108,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           {upcoming.length === 0 ? (
             <p className="p-6 text-center text-sm text-slate-500">Nada agendado para os próximos 7 dias.</p>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="stagger divide-y divide-slate-100">
               {upcoming.map((a) => (
                 <Link key={a.id} href={`/app/agenda/${a.id}`} className="flex gap-3 px-4 py-3 hover:bg-slate-50">
                   <div className="w-14 flex-none text-center">

@@ -25,7 +25,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
     <div className="mx-auto max-w-4xl">
       <AutoPrint />
       <div className="no-print mb-3 flex justify-end"><PrintButton className="btn-primary" /></div>
-      <div className="card print-area p-6">
+      <div className="card paper print-area p-6">
         <div className="mb-4 flex items-start justify-between">
           <div>
             <div className="text-lg font-bold">{company.name}</div>
@@ -40,7 +40,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
           <thead className="border-b border-slate-300 text-left text-xs uppercase text-slate-500">
             <tr><th className="py-2">Data</th><th>Descrição</th><th>Categoria</th><th className="text-right">Valor</th><th className="text-right">Saldo</th></tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="stagger divide-y divide-slate-100">
             <tr className="text-slate-500"><td className="py-1.5" colSpan={4}>Saldo anterior</td><td className="text-right">{money(opening)}</td></tr>
             {tx.map((t) => {
               bal = round2(bal + (t.type === "INCOME" ? t.amount : -t.amount));

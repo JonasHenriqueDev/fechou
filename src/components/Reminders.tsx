@@ -71,7 +71,7 @@ export function Reminders() {
   return (
     <div className="fixed inset-x-3 top-3 z-50 flex flex-col gap-2 sm:left-auto sm:right-20 sm:w-96 no-print">
       {toasts.map((t) => (
-        <div key={t.key} className="card flex items-start gap-3 p-3 shadow-lg">
+        <div key={t.key} role="status" className="card flex animate-slide-down items-start gap-3 p-3 shadow-lg">
           <Icon name="bell" className="mt-0.5 h-5 w-5 flex-none text-brand-600" />
           <button className="flex-1 text-left text-sm" onClick={() => { if (t.link) router.push(t.link); setToasts((c) => c.filter((x) => x.key !== t.key)); }}>
             {t.text}

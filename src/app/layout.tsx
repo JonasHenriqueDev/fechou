@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { NavProgress } from "@/components/NavProgress";
+import { themeScript } from "@/components/ThemeToggle";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,8 +18,15 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR">
-      <body className="min-h-screen">{children}</body>
+    // O script de tema adiciona `dark` no <html> antes da hidratação.
+    <html lang="pt-BR" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body className="min-h-screen">
+        <NavProgress />
+        {children}
+      </body>
     </html>
   );
 }

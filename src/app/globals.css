@@ -2,24 +2,134 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Tema: as cores do Tailwind (tailwind.config.ts) leem estas variáveis (canais RGB).
+ * `html.dark` troca os valores só na tela — a impressão (PDF) sai sempre no tema claro.
+ * `.paper` força o tema claro num trecho (documento, assinatura, QR), como uma folha de papel.
+ */
+:root,
+.paper {
+  --c-white: 255 255 255;
+  --brand-text: 29 92 241;
+
+  --c-slate-50: 248 250 252; --c-slate-100: 241 245 249; --c-slate-200: 226 232 240; --c-slate-300: 203 213 225;
+  --c-slate-400: 148 163 184; --c-slate-500: 100 116 139; --c-slate-600: 71 85 105; --c-slate-700: 51 65 85;
+  --c-slate-800: 30 41 59; --c-slate-900: 15 23 42; --c-slate-950: 2 6 23;
+
+  --c-brand-50: 238 246 255; --c-brand-100: 217 234 255; --c-brand-200: 188 218 255; --c-brand-300: 142 194 255;
+  --c-brand-400: 89 159 255; --c-brand-500: 51 123 252; --c-brand-600: 29 92 241; --c-brand-700: 22 71 222;
+  --c-brand-800: 24 59 180; --c-brand-900: 26 55 141; --c-brand-950: 23 35 84;
+
+  --c-emerald-50: 236 253 245; --c-emerald-100: 209 250 229; --c-emerald-200: 167 243 208; --c-emerald-300: 110 231 183;
+  --c-emerald-400: 52 211 153; --c-emerald-500: 16 185 129; --c-emerald-600: 5 150 105; --c-emerald-700: 4 120 87;
+  --c-emerald-800: 6 95 70; --c-emerald-900: 6 78 59; --c-emerald-950: 2 44 34;
+
+  --c-red-50: 254 242 242; --c-red-100: 254 226 226; --c-red-200: 254 202 202; --c-red-300: 252 165 165;
+  --c-red-400: 248 113 113; --c-red-500: 239 68 68; --c-red-600: 220 38 38; --c-red-700: 185 28 28;
+  --c-red-800: 153 27 27; --c-red-900: 127 29 29; --c-red-950: 69 10 10;
+
+  --c-amber-50: 255 251 235; --c-amber-100: 254 243 199; --c-amber-200: 253 230 138; --c-amber-300: 252 211 77;
+  --c-amber-400: 251 191 36; --c-amber-500: 245 158 11; --c-amber-600: 217 119 6; --c-amber-700: 180 83 9;
+  --c-amber-800: 146 64 14; --c-amber-900: 120 53 15; --c-amber-950: 69 26 3;
+
+  --c-blue-50: 239 246 255; --c-blue-100: 219 234 254; --c-blue-200: 191 219 254; --c-blue-300: 147 197 253;
+  --c-blue-400: 96 165 250; --c-blue-500: 59 130 246; --c-blue-600: 37 99 235; --c-blue-700: 29 78 216;
+  --c-blue-800: 30 64 175; --c-blue-900: 30 58 138; --c-blue-950: 23 37 84;
+
+  --c-violet-50: 245 243 255; --c-violet-100: 237 233 254; --c-violet-200: 221 214 254; --c-violet-300: 196 181 253;
+  --c-violet-400: 167 139 250; --c-violet-500: 139 92 246; --c-violet-600: 124 58 237; --c-violet-700: 109 40 217;
+  --c-violet-800: 91 33 182; --c-violet-900: 76 29 149; --c-violet-950: 46 16 101;
+}
+
+@media screen {
+  /* Escuro: cinzas invertidos; tons claros (50–300) viram fundos escuros tingidos e
+     tons escuros de texto (600–900) clareiam. Os 500 (e o azul 600 dos botões) ficam iguais. */
+  html.dark {
+    color-scheme: dark;
+    --c-white: 17 24 39;
+    --brand-text: 110 168 255;
+
+    --c-slate-50: 9 13 23; --c-slate-100: 30 38 54; --c-slate-200: 38 48 66; --c-slate-300: 55 66 86;
+    --c-slate-400: 100 112 133; --c-slate-500: 145 157 178; --c-slate-600: 172 182 199; --c-slate-700: 203 211 225;
+    --c-slate-800: 226 232 240; --c-slate-900: 241 245 249; --c-slate-950: 248 250 252;
+
+    --c-brand-50: 21 36 66; --c-brand-100: 24 44 82; --c-brand-200: 28 56 108; --c-brand-300: 34 73 145;
+    --c-brand-700: 142 194 255; --c-brand-800: 188 218 255; --c-brand-900: 217 234 255; --c-brand-950: 238 246 255;
+
+    --c-emerald-50: 17 43 50; --c-emerald-100: 17 56 57; --c-emerald-200: 17 76 68; --c-emerald-300: 17 105 84;
+    --c-emerald-600: 52 211 153; --c-emerald-700: 110 231 183; --c-emerald-800: 167 243 208; --c-emerald-900: 209 250 229; --c-emerald-950: 236 253 245;
+
+    --c-red-50: 44 29 42; --c-red-100: 61 33 45; --c-red-200: 88 38 48; --c-red-300: 128 46 53;
+    --c-red-600: 248 113 113; --c-red-700: 252 165 165; --c-red-800: 254 202 202; --c-red-900: 254 226 226; --c-red-950: 254 242 242;
+
+    --c-amber-50: 44 40 36; --c-amber-100: 63 51 33; --c-amber-200: 90 67 30; --c-amber-300: 131 91 25;
+    --c-amber-600: 251 191 36; --c-amber-700: 252 211 77; --c-amber-800: 253 230 138; --c-amber-900: 254 243 199; --c-amber-950: 255 251 235;
+
+    --c-blue-50: 22 37 64; --c-blue-100: 25 45 80; --c-blue-200: 30 58 105; --c-blue-300: 38 77 142;
+    --c-blue-600: 96 165 250; --c-blue-700: 147 197 253; --c-blue-800: 191 219 254; --c-blue-900: 219 234 254; --c-blue-950: 239 246 255;
+
+    --c-violet-50: 32 32 64; --c-violet-100: 41 38 80; --c-violet-200: 56 46 105; --c-violet-300: 78 58 142;
+    --c-violet-600: 167 139 250; --c-violet-700: 196 181 253; --c-violet-800: 221 214 254; --c-violet-900: 237 233 254; --c-violet-950: 245 243 255;
+  }
+  /* Texto azul-marca (links) precisa clarear no escuro, mas o fundo azul dos botões não. */
+  html.dark .text-brand-600 { color: rgb(var(--brand-text)); }
+  html.dark .card { box-shadow: 0 1px 2px rgb(0 0 0 / 0.35); }
+}
+
+.paper { color: rgb(var(--c-slate-900)); background-color: rgb(var(--c-white)); }
+
+/* Troca de tema suave (classe aplicada por alguns ms pelo ThemeToggle). */
+html.theme-anim *,
+html.theme-anim *::before,
+html.theme-anim *::after {
+  transition: background-color .3s ease, border-color .3s ease, color .3s ease, fill .3s ease !important;
+}
+
 @layer base {
   html { -webkit-tap-highlight-color: transparent; }
   body { @apply bg-slate-50 text-slate-900 antialiased; }
+  ::selection { background: rgb(var(--c-brand-500) / 0.25); }
 }
 
 @layer components {
   .card { @apply rounded-2xl border border-slate-200 bg-white shadow-sm; }
-  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:opacity-50 disabled:pointer-events-none; }
-  .btn-primary { @apply btn bg-brand-600 text-white hover:bg-brand-700; }
+  /* Cartões clicáveis levantam um pouco no hover. */
+  a.card, button.card { @apply transition duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md active:translate-y-0; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition duration-150 active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none; }
+  .btn-primary { @apply btn bg-brand-600 text-white shadow-sm shadow-brand-600/20 hover:bg-[#1647de]; }
   .btn-secondary { @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50; }
   .btn-danger { @apply btn border border-red-200 bg-white text-red-600 hover:bg-red-50; }
-  .btn-success { @apply btn bg-emerald-600 text-white hover:bg-emerald-700; }
+  .btn-success { @apply btn bg-[#059669] text-white hover:bg-[#047857]; }
   .btn-whatsapp { @apply btn bg-[#25D366] text-white hover:bg-[#1ebe5a]; }
   .btn-sm { @apply px-3 py-1.5 text-xs rounded-lg; }
-  .input { @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100; }
+  .input { @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100; }
   .label { @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500; }
   .badge { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold; }
   .page-title { @apply text-xl font-bold sm:text-2xl; }
+
+  /* Carregamento */
+  .spinner { @apply inline-block h-4 w-4 flex-none animate-spin rounded-full border-2 border-current border-r-transparent; }
+  .skeleton {
+    @apply rounded-lg animate-shimmer;
+    background-image: linear-gradient(90deg, rgb(var(--c-slate-100)) 25%, rgb(var(--c-slate-200)) 45%, rgb(var(--c-slate-100)) 65%);
+    background-size: 400% 100%;
+  }
+  /* Filhos entram em cascata (listas, cartões do painel). */
+  .stagger > * { @apply animate-fade-up; }
+  .stagger > *:nth-child(2) { animation-delay: 40ms; }
+  .stagger > *:nth-child(3) { animation-delay: 80ms; }
+  .stagger > *:nth-child(4) { animation-delay: 120ms; }
+  .stagger > *:nth-child(5) { animation-delay: 160ms; }
+  .stagger > *:nth-child(n + 6) { animation-delay: 200ms; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Documentos (orçamento, pedido, recibo, extrato) — impressão = “Baixar PDF” */
@@ -29,5 +139,5 @@
   .no-print { display: none !important; }
   .print-area { box-shadow: none !important; border: none !important; margin: 0 !important; max-width: none !important; padding: 0 !important; }
   .avoid-break { break-inside: avoid; }
-  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; animation: none !important; transition: none !important; }
 }

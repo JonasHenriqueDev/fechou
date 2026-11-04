@@ -16,7 +16,7 @@ export function SignatureField({ name, defaultValue }: { name: string; defaultVa
       ) : (
         <div className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={value} alt="Assinatura" className="h-20 rounded-lg border border-slate-200 bg-white object-contain p-1" />
+          <img src={value} alt="Assinatura" className="paper h-20 animate-fade-in rounded-lg border border-slate-200 object-contain p-1" />
           <button type="button" className="btn-secondary btn-sm" onClick={() => { setValue(""); setEditing(true); }}>Refazer</button>
         </div>
       )}

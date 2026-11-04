@@ -82,7 +82,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         <section className="card">
           <h2 className="border-b border-slate-100 px-4 py-3 font-semibold">Orçamentos</h2>
           {c.quotes.length === 0 ? <p className="p-4 text-sm text-slate-500">Nenhum.</p> : (
-            <div className="divide-y divide-slate-100">
+            <div className="stagger divide-y divide-slate-100">
               {c.quotes.map((q) => (
                 <Link key={q.id} href={`/app/orcamentos/${q.id}`} className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-slate-50">
                   <span>nº {q.code} · {date(q.createdAt)}</span>
@@ -95,7 +95,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         <section className="card">
           <h2 className="border-b border-slate-100 px-4 py-3 font-semibold">Pedidos e OS</h2>
           {c.orders.length === 0 ? <p className="p-4 text-sm text-slate-500">Nenhum.</p> : (
-            <div className="divide-y divide-slate-100">
+            <div className="stagger divide-y divide-slate-100">
               {c.orders.map((o) => (
                 <Link key={o.id} href={`/app/pedidos/${o.id}`} className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-slate-50">
                   <span>{ORDER_KIND[o.kind]} nº {o.code}</span>
@@ -108,7 +108,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         {c.appointments.length > 0 && (
           <section className="card lg:col-span-2">
             <h2 className="border-b border-slate-100 px-4 py-3 font-semibold">Agenda</h2>
-            <div className="divide-y divide-slate-100">
+            <div className="stagger divide-y divide-slate-100">
               {c.appointments.map((a) => (
                 <Link key={a.id} href={`/app/agenda/${a.id}`} className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-slate-50">
                   <span>{a.title}</span>

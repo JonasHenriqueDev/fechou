@@ -32,7 +32,7 @@ export default async function Page({ params }: { params: Promise<{ token: string
         <PrintButton className="btn-primary" />
       </div>
 
-      <div className="card print-area mx-auto max-w-2xl overflow-hidden">
+      <div className="card paper print-area mx-auto max-w-2xl overflow-hidden">
         <div className="h-2" style={{ background: color }} />
         <div className="space-y-6 p-6 sm:p-10">
           <div className="flex items-start justify-between gap-4">

@@ -125,7 +125,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ m
             <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
               <tr><th className="px-4 py-2">Dia</th><th className="px-4 py-2 text-right">Entradas</th><th className="px-4 py-2 text-right">Saídas</th><th className="px-4 py-2 text-right">Saldo</th></tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="stagger divide-y divide-slate-100">
               <tr className="text-slate-500"><td className="px-4 py-2">Saldo anterior</td><td /><td /><td className="px-4 py-2 text-right">{money(opening)}</td></tr>
               {flow.map((f) => (
                 <tr key={f.day}>
