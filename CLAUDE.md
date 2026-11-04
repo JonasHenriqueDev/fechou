@@ -12,27 +12,32 @@ Fechou (antes chamado OrçaFácil) — SaaS web (sem instalação, responsivo pa
 
 ```bash
 npm install
-cp .env.example .env # DATABASE_URL (SQLite) e AUTH_SECRET
-npm run db:push      # cria/atualiza o banco SQLite (prisma/dev.db) a partir do schema
-npm run db:seed      # dados demo — login demo@fechou.test / demo123
-npm run dev          # http://localhost:3000
-npm run typecheck    # tsc --noEmit
-npm run lint         # next lint
-npm run build        # prisma generate + next build (também faz lint e checagem de tipos)
-npm run db:studio    # Prisma Studio para inspecionar o banco
+cp .env.example .env   # DATABASE_URL(_UNPOOLED), BETTER_AUTH_SECRET, BLOB_READ_WRITE_TOKEN (opcional)
+npm run db:up          # Postgres local no Docker (docker-compose.yml)
+npm run db:migrate     # prisma migrate dev — aplica/cria migrations
+npm run db:seed        # dados demo — login demo@fechou.test / demo123
+npm run dev            # http://localhost:3000
+npm test               # Vitest (src/**/*.test.ts)
+npm run typecheck      # tsc --noEmit
+npm run lint           # eslint . (flat config em eslint.config.mjs)
+npm run build          # prisma generate + next build
+npm run db:studio      # Prisma Studio
 ```
 
-Não há suíte de testes automatizados; valide com `npm run build` e navegando no app (`.claude/launch.json` tem a config "dev", que sobe com `-H 0.0.0.0` para abrir pelo celular na rede local — os IPs permitidos ficam em `allowedDevOrigins` no `next.config.mjs`).
+Testes unitários cobrem as regras puras de `src/lib` (totais, parcelas, Pix, datas, validação de imagens). Fluxos de tela não têm teste automatizado: valide com `npm run build` e navegando no app (`.claude/launch.json` tem a config "dev", que sobe com `-H 0.0.0.0` para abrir pelo celular na rede local — os IPs permitidos ficam em `allowedDevOrigins` no `next.config.mjs`). O dev server trava a DLL do Prisma no Windows: pare-o antes de `npm run build`/`prisma generate`.
 
-Não há pasta de migrations: mudanças em `prisma/schema.prisma` são aplicadas com `db:push`. Para produção, o README indica trocar o provider para `postgresql` e definir `DATABASE_URL`/`AUTH_SECRET`.
+**Banco e migrations:** mudou `prisma/schema.prisma` → `npm run db:migrate -- --name <descricao>` e commite a pasta gerada em `prisma/migrations`. Nunca use `db push`. Na Vercel, `vercel-build` roda `prisma migrate deploy` só quando `VERCEL_ENV=production` (previews compartilham o banco de produção e não migram).
+
+**Deploy:** projeto Vercel `fechou` (conta jonashenriquedev), ligado ao GitHub `JonasHenriqueDev/fechou` — push na `main` publica em produção. Neon Postgres (`fechou-db`, us-east-1) e Vercel Blob (`fechou-blob`, público) injetam as variáveis; `BETTER_AUTH_SECRET` é separado por ambiente. O `.env` local aponta para o Docker — não use `vercel env pull` para `.env.local` (o Next daria prioridade a ele e o dev passaria a usar o banco de produção).
 
 ## Stack
 
-Next.js 15 (App Router, Server Components, Server Actions), React 19, Prisma 6 + SQLite, Tailwind 3, `jose` (JWT em cookie), `bcryptjs`, `qrcode`. Sem biblioteca de UI nem de ícones (ver `src/components/Icon.tsx`).
+Next.js 15 (App Router, Server Components, Server Actions), React 19, TypeScript, PostgreSQL + Prisma 6 (migrations), Better Auth (e-mail/senha, hash bcrypt), Vercel Blob, Tailwind 3, `qrcode`, Vitest, ESLint 9. Sem biblioteca de UI nem de ícones (ver `src/components/Icon.tsx`).
 
 ## Arquitetura
 
-- **Multi-tenant por `companyId`.** `requireSession()`/`requireCompany()` (`src/lib/auth.ts`) devolvem o `companyId` da sessão; **toda** query e mutation autenticada deve filtrar por ele (`findFirst({ where: { id, companyId } })`, `updateMany`/`deleteMany` com `companyId`). `src/middleware.ts` só faz a barreira rápida de `/app/*` (roda no edge e lê `AUTH_SECRET` por conta própria, com o mesmo fallback de `authSecret()` — mantenha os dois em sincronia).
+- **Multi-tenant por `companyId`.** `requireSession()`/`requireCompany()` (`src/lib/auth.ts`) devolvem o `companyId` da sessão; **toda** query e mutation autenticada deve filtrar por ele (`findFirst({ where: { id, companyId } })`, `updateMany`/`deleteMany` com `companyId`). `src/middleware.ts` só faz a barreira rápida de `/app/*` (confere se existe o cookie de sessão com `getSessionCookie`); a validação real é `getSession()`.
+- **Autenticação = Better Auth** (`src/lib/auth.ts`, rotas em `/api/auth/[...all]`). Sessões ficam na tabela `Session` (cookie cache de 5 min); senha (bcrypt) em `Account.password` com `providerId: "credential"`; rate limit na tabela `RateLimit`. `User.companyId` é `input: false` (o cliente não consegue definir) e é preenchido pelo `databaseHooks.user.create.before`, que cria a `Company` do novo usuário; a action `signup` só completa nome/WhatsApp da empresa. Login/cadastro/logout são Server Actions (`actions/auth.ts`) chamando `auth.api.*` com o plugin `nextCookies`.
 - **Mutations = Server Actions** em `src/actions/*.ts` (`"use server"`), ligadas às páginas com `.bind(null, id)`. Tudo que um arquivo `"use server"` exporta vira endpoint público — helpers internos sem checagem de auth (ex.: `applyStock`, `createPaymentWithReceipt`, `nextSeq`) ficam em `src/actions/helpers.ts`, que **não** é `"use server"`.
 - **Rotas:** `/app/*` área logada (layout com `AppShell`: sidebar no desktop, barra inferior + menu “Mais” no celular). Páginas públicas por token não adivinhável (`publicToken()`): `/o/[token]` portal do orçamento (visualização, aprovação com assinatura, Pix), `/p/[token]` portal do pedido (parcelas, Pix, recibos), `/r/[token]` recibo. Sufixo `/pdf` = mesma visualização + `window.print()`. `/gerador` é o gerador grátis sem cadastro (`FreeGenerator`, só client, não grava no banco) e `/` é a landing.
 - **PDF = impressão do navegador.** Não há gerador de PDF no servidor; `DocumentView` é o layout único de orçamento/pedido/OS usado na tela, no portal e na impressão. Classes `no-print`, `print-area`, `avoid-break` em `globals.css` controlam o resultado impresso.
@@ -46,8 +51,9 @@ Next.js 15 (App Router, Server Components, Server Actions), React 19, Prisma 6 +
 
 ## Convenções
 
-- Dinheiro é `Float` em reais; arredonde com `round2`. Status/tipos são `String` (SQLite sem enum) — valores e rótulos em `src/lib/constants.ts`.
+- Dinheiro é `Float` em reais; arredonde com `round2`. Status/tipos são `String` — valores e rótulos em `src/lib/constants.ts`.
+- Buscas com `contains` usam `mode: "insensitive"` (Postgres diferencia maiúsculas).
 - Datas de formulário: `parseInputDate` grava meio-dia UTC (evita “voltar um dia”); `datetime-local` é interpretado como Brasília (`parseInputDateTime`). Atraso de parcela usa `isOverdue` (comparação por dia em Brasília), nunca `dueDate < now`.
-- Imagens (logo, fotos, assinaturas) são data URLs redimensionadas no navegador (`fileToDataUrl`) e salvas no banco — limite de body das actions em `next.config.mjs` (8 MB).
+- Imagens (logo, fotos, assinaturas): o navegador redimensiona (`fileToDataUrl`) e envia para `/api/upload` (`uploadImage`/`fileToImageUrl` em `components/client.tsx`), que grava no Vercel Blob em `<companyId>/<pasta>/...`; o formulário leva só a URL. **Toda action que salva imagem passa o valor por `persistImage`/`persistImages` (`src/lib/storage.ts`)**: aceita só URL do Blob ou data URL PNG/JPEG/WebP (que é enviado ao Blob) e descarta o resto. Sem `BLOB_READ_WRITE_TOKEN`, o data URL fica no banco (dev offline). Limite de body das actions: 4 MB (a Vercel corta em 4,5 MB). O gerador grátis (`/gerador`) continua só com data URLs, sem upload.
 - Next 15: `params`/`searchParams` são `Promise` e precisam de `await`. Arquivos `page.tsx` só podem exportar o default e metadados — componentes auxiliares vão para `src/components`.
 - Layout responsivo é requisito: teste em largura de celular (375px) e desktop.

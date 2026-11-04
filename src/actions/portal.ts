@@ -4,6 +4,7 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
+import { persistImage } from "@/lib/storage";
 
 export type PortalState = { error?: string; ok?: boolean } | undefined;
 
@@ -15,9 +16,11 @@ export async function approveQuote(token: string, _: PortalState, fd: FormData):
   const q = await db.quote.findUnique({ where: { token } });
   if (!q || ["APPROVED", "CONVERTED"].includes(q.status)) return { error: "Este orçamento não pode mais ser aprovado." };
   if (q.validUntil && q.validUntil.getTime() + 86400000 < Date.now()) return { error: "Este orçamento está vencido. Fale com a empresa." };
+  const clientSignature = await persistImage(signature, "aprovacoes", q.companyId);
+  if (!clientSignature) return { error: "Assinatura inválida. Limpe o quadro e assine de novo." };
   await db.quote.update({
     where: { id: q.id },
-    data: { status: "APPROVED", approvedAt: new Date(), approvedByName: name, clientSignature: signature, rejectedAt: null, rejectReason: null },
+    data: { status: "APPROVED", approvedAt: new Date(), approvedByName: name.slice(0, 120), clientSignature, rejectedAt: null, rejectReason: null },
   });
   await db.notification.create({
     data: { companyId: q.companyId, type: "QUOTE_APPROVED", message: `${name} aprovou o orçamento nº ${q.code}`, link: `/app/orcamentos/${q.id}` },

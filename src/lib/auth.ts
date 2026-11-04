@@ -1,43 +1,95 @@
 import "server-only";
-import { SignJWT, jwtVerify } from "jose";
-import { cookies } from "next/headers";
+import bcrypt from "bcryptjs";
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { nextCookies } from "better-auth/next-js";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import { db } from "./db";
 
-export const SESSION_COOKIE = "session";
-export const authSecret = () =>
-  new TextEncoder().encode(process.env.AUTH_SECRET ?? "dev-secret-change-me");
+const vercelOrigins = [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL]
+  .filter(Boolean)
+  .map((h) => `https://${h}`);
+
+const baseURL =
+  process.env.BETTER_AUTH_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000");
+
+if (process.env.NODE_ENV === "production" && !process.env.BETTER_AUTH_SECRET && process.env.NEXT_PHASE !== "phase-production-build") {
+  throw new Error("BETTER_AUTH_SECRET não definido em produção.");
+}
+
+/**
+ * Better Auth: e-mail + senha, sessões no banco (tabela Session), rate limit no banco.
+ * Rotas HTTP em /api/auth/* (src/app/api/auth/[...all]/route.ts).
+ */
+export const auth = betterAuth({
+  appName: "Fechou",
+  baseURL,
+  secret: process.env.BETTER_AUTH_SECRET,
+  trustedOrigins: [baseURL, ...vercelOrigins, ...(process.env.NODE_ENV === "production" ? [] : ["http://localhost:3000", "http://192.168.*.*:3000"])],
+  database: prismaAdapter(db, { provider: "postgresql" }),
+  emailAndPassword: {
+    enabled: true,
+    minPasswordLength: 6,
+    maxPasswordLength: 128,
+    autoSignIn: true,
+    // bcrypt mantém compatibilidade com o seed e com hashes já existentes.
+    password: {
+      hash: (password) => bcrypt.hash(password, 10),
+      verify: ({ hash, password }) => bcrypt.compare(password, hash),
+    },
+  },
+  user: {
+    // companyId nunca vem do cliente: é definido no hook abaixo.
+    additionalFields: { companyId: { type: "string", required: false, input: false } },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        // Todo usuário novo ganha a própria empresa (tenant). O nome é ajustado depois pelo cadastro.
+        before: async (user) => {
+          const company = await db.company.create({
+            data: { name: user.name || "Minha empresa", email: user.email, defaultConditions: "Pix, cartão ou dinheiro." },
+          });
+          return { data: { ...user, companyId: company.id } };
+        },
+      },
+    },
+  },
+  session: {
+    expiresIn: 60 * 60 * 24 * 30,
+    updateAge: 60 * 60 * 24,
+    cookieCache: { enabled: true, maxAge: 5 * 60 },
+  },
+  rateLimit: {
+    enabled: true,
+    storage: "database",
+    modelName: "rateLimit",
+    window: 60,
+    max: 100,
+    customRules: {
+      "/sign-in/email": { window: 60, max: 5 },
+      "/sign-up/email": { window: 60, max: 3 },
+    },
+  },
+  advanced: {
+    database: { generateId: false },
+    ipAddress: { ipAddressHeaders: ["x-forwarded-for", "x-real-ip"] },
+  },
+  plugins: [nextCookies()],
+});
 
 export type Session = { userId: string; companyId: string };
 
-export async function createSession(s: Session) {
-  const token = await new SignJWT(s)
-    .setProtectedHeader({ alg: "HS256" })
-    .setExpirationTime("30d")
-    .sign(authSecret());
-  (await cookies()).set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 30,
-  });
-}
-
-export async function destroySession() {
-  (await cookies()).delete(SESSION_COOKIE);
-}
-
-export async function getSession(): Promise<Session | null> {
-  const token = (await cookies()).get(SESSION_COOKIE)?.value;
-  if (!token) return null;
-  try {
-    const { payload } = await jwtVerify(token, authSecret());
-    return { userId: payload.userId as string, companyId: payload.companyId as string };
-  } catch {
-    return null;
-  }
-}
+/** Sessão atual (memoizada por requisição). */
+export const getSession = cache(async (): Promise<Session | null> => {
+  const s = await auth.api.getSession({ headers: await headers() });
+  const companyId = (s?.user as { companyId?: string } | undefined)?.companyId;
+  if (!s || !companyId) return null;
+  return { userId: s.user.id, companyId };
+});
 
 /** Toda página/ação autenticada passa por aqui; o companyId devolvido filtra todas as queries (multi-tenant). */
 export async function requireSession(): Promise<Session> {

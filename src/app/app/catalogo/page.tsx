@@ -15,7 +15,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
       companyId,
       ...(tipo ? { type: tipo } : {}),
       ...(estoque ? { trackStock: true, stock: { lte: 5 } } : {}),
-      ...(q ? { name: { contains: q } } : {}),
+      ...(q ? { name: { contains: q, mode: "insensitive" as const } } : {}),
     },
     orderBy: [{ active: "desc" }, { name: "asc" }],
   });

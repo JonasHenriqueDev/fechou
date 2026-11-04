@@ -1,0 +1,15 @@
+# Postgres local para desenvolvimento (produção usa Neon via Vercel).
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: orcafacil
+      POSTGRES_PASSWORD: orcafacil
+      POSTGRES_DB: orcafacil
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

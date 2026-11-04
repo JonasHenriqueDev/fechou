@@ -23,7 +23,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
       <form action={saveCompany} className="space-y-5">
         <section className="card grid gap-4 p-4 sm:grid-cols-2 sm:p-6">
           <h2 className="font-semibold sm:col-span-2">Identidade visual</h2>
-          <ImageInput name="logo" defaultValue={c.logo} label="Logo" max={500} />
+          <ImageInput name="logo" defaultValue={c.logo} label="Logo" max={500} folder="logos" />
           <label>
             <span className="label">Cor dos documentos</span>
             <input type="color" name="primaryColor" defaultValue={c.primaryColor} className="h-12 w-24 cursor-pointer rounded-xl border border-slate-300" />

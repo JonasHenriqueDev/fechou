@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { calcTotals } from "@/lib/calc";
 import { money } from "@/lib/format";
 import { UNITS } from "@/lib/constants";
-import { fileToDataUrl, SubmitButton } from "./client";
+import { fileToImageUrl, SubmitButton } from "./client";
 import { Icon } from "./Icon";
 
 export type EditorItem = {
@@ -278,7 +278,7 @@ export function DocumentEditor({
                   className="hidden"
                   onChange={async (e) => {
                     const files = Array.from(e.target.files ?? []);
-                    const imgs = await Promise.all(files.map((f) => fileToDataUrl(f, 1200)));
+                    const imgs = await Promise.all(files.map((f) => fileToImageUrl(f, 1200, "fotos")));
                     setV((s) => ({ ...s, photos: [...s.photos, ...imgs.map((image) => ({ key: key(), image, caption: "" }))] }));
                     e.target.value = "";
                   }}
@@ -387,7 +387,7 @@ function ItemPhoto({ value, onChange }: { value: string | null; onChange: (v: st
         className="hidden"
         onChange={async (e) => {
           const f = e.target.files?.[0];
-          if (f) onChange(await fileToDataUrl(f, 600));
+          if (f) onChange(await fileToImageUrl(f, 600, "itens"));
           e.target.value = "";
         }}
       />

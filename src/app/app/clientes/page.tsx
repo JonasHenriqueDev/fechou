@@ -11,7 +11,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
   const { companyId } = await requireSession();
   const { q, importados } = await searchParams;
   const clients = await db.client.findMany({
-    where: { companyId, ...(q ? { OR: [{ name: { contains: q } }, { phone: { contains: q } }, { email: { contains: q } }, { document: { contains: q } }] } : {}) },
+    where: { companyId, ...(q ? { OR: [{ name: { contains: q, mode: "insensitive" as const } }, { phone: { contains: q, mode: "insensitive" as const } }, { email: { contains: q, mode: "insensitive" as const } }, { document: { contains: q, mode: "insensitive" as const } }] } : {}) },
     orderBy: { name: "asc" },
     include: { _count: { select: { quotes: true, orders: true } } },
     take: 500,

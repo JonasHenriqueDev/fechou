@@ -26,7 +26,7 @@ export function CatalogForm({ item, defaultType, action }: { item?: CatalogItem 
         ))}
       </div>
       <div className="sm:col-span-2">
-        <ImageInput name="photo" defaultValue={item?.photo} label="Foto (aparece no orçamento)" max={800} />
+        <ImageInput name="photo" defaultValue={item?.photo} label="Foto (aparece no orçamento)" max={800} folder="catalogo" />
       </div>
       <label className="sm:col-span-2">
         <span className="label">Nome *</span>

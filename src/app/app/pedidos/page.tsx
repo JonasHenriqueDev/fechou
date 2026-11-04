@@ -16,7 +16,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ q
       companyId,
       ...(status ? { status } : {}),
       ...(tipo ? { kind: tipo } : {}),
-      ...(q ? { OR: [{ code: { contains: q } }, { title: { contains: q } }, { client: { name: { contains: q } } }] } : {}),
+      ...(q ? { OR: [{ code: { contains: q, mode: "insensitive" as const } }, { title: { contains: q, mode: "insensitive" as const } }, { client: { name: { contains: q, mode: "insensitive" as const } } }] } : {}),
     },
     orderBy: { createdAt: "desc" },
     include: { client: true, payments: { select: { amount: true } } },

@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
 import { parseInputDate, parseInputDateTime } from "@/lib/format";
 import { round2 } from "@/lib/calc";
+import { persistImage } from "@/lib/storage";
 import { createPaymentWithReceipt, numf, str } from "./helpers";
 
 /* ---------------- Clientes ---------------- */
@@ -67,7 +68,7 @@ export async function saveCatalogItem(id: string | null, fd: FormData) {
     cost: round2(numf(fd, "cost")),
     trackStock: fd.get("trackStock") === "on",
     stock: fd.has("stock") ? numf(fd, "stock") : undefined,
-    photo: str(fd, "photo"),
+    photo: await persistImage(str(fd, "photo"), "catalogo", companyId),
     active: fd.get("active") !== "off",
   };
   if (id) await db.catalogItem.updateMany({ where: { id, companyId }, data });
@@ -194,8 +195,8 @@ export async function saveCompany(fd: FormData) {
       address: str(fd, "address"),
       city: str(fd, "city"),
       state: str(fd, "state"),
-      logo: str(fd, "logo"),
-      signature: str(fd, "signature"),
+      logo: await persistImage(str(fd, "logo"), "logos", companyId),
+      signature: await persistImage(str(fd, "signature"), "assinaturas", companyId),
       primaryColor: str(fd, "primaryColor") ?? "#1d5cf1",
       pixKey: str(fd, "pixKey"),
       pixName: str(fd, "pixName"),

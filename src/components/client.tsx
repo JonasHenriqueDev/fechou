@@ -26,6 +26,26 @@ export async function fileToDataUrl(file: File, max = 1000): Promise<string> {
   }
 }
 
+/**
+ * Envia a imagem (data URL) para o storage via /api/upload e devolve a URL pública.
+ * Se falhar (offline, sem Blob em dev), devolve o próprio data URL — a action também persiste no servidor.
+ */
+export async function uploadImage(dataUrl: string, folder: string): Promise<string> {
+  try {
+    const res = await fetch("/api/upload", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ dataUrl, folder }) });
+    if (!res.ok) return dataUrl;
+    const { url } = (await res.json()) as { url?: string };
+    return url || dataUrl;
+  } catch {
+    return dataUrl;
+  }
+}
+
+/** Redimensiona no navegador e já envia ao storage. */
+export async function fileToImageUrl(file: File, max: number, folder: string) {
+  return uploadImage(await fileToDataUrl(file, max), folder);
+}
+
 export function SubmitButton({ children, className = "btn-primary", pendingText = "Salvando..." }: { children: React.ReactNode; className?: string; pendingText?: string }) {
   const { pending } = useFormStatus();
   return (
@@ -49,13 +69,14 @@ export function ConfirmSubmit({ children, message, className = "btn-danger" }: {
   );
 }
 
-/** Campo de imagem: mostra prévia e envia o data URL num input hidden com `name`. */
-export function ImageInput({ name, defaultValue, label = "Imagem", max = 1000, className = "h-28 w-28" }: { name: string; defaultValue?: string | null; label?: string; max?: number; className?: string }) {
+/** Campo de imagem: mostra prévia, envia ao storage e guarda a URL num input hidden com `name`. */
+export function ImageInput({ name, defaultValue, label = "Imagem", max = 1000, folder, className = "h-28 w-28" }: { name: string; defaultValue?: string | null; label?: string; max?: number; folder: string; className?: string }) {
   const [value, setValue] = useState(defaultValue ?? "");
+  const [uploading, setUploading] = useState(false);
   const ref = useRef<HTMLInputElement>(null);
   return (
     <div>
-      <span className="label">{label}</span>
+      <span className="label">{label}{uploading && <span className="ml-2 font-normal text-slate-400">enviando...</span>}</span>
       <input type="hidden" name={name} value={value} />
       <div className="flex items-center gap-3">
         <button type="button" onClick={() => ref.current?.click()} className={`${className} grid place-items-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-slate-400 hover:border-brand-400`}>
@@ -79,8 +100,13 @@ export function ImageInput({ name, defaultValue, label = "Imagem", max = 1000, c
         className="hidden"
         onChange={async (e) => {
           const f = e.target.files?.[0];
-          if (f) setValue(await fileToDataUrl(f, max));
           e.target.value = "";
+          if (!f) return;
+          const preview = await fileToDataUrl(f, max);
+          setValue(preview);
+          setUploading(true);
+          setValue(await uploadImage(preview, folder));
+          setUploading(false);
         }}
       />
     </div>

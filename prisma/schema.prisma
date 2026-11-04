@@ -2,16 +2,17 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// SQLite para desenvolvimento. Para produção, troque para "postgresql"
-// e ajuste DATABASE_URL — o schema não usa nada específico do SQLite.
+// PostgreSQL: Docker local em dev (docker-compose.yml), Neon em produção.
+// DATABASE_URL = conexão com pool (app); DATABASE_URL_UNPOOLED = conexão direta (migrations).
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 // Valores monetários são Float em reais, sempre arredondados com round2() (src/lib/calc.ts).
-// Campos "status"/"type" são String porque o SQLite não tem enum; os valores válidos
-// estão documentados em src/lib/constants.ts.
+// Campos "status"/"type" são String; os valores válidos estão em src/lib/constants.ts.
+// Imagens (logo, fotos, assinaturas) guardam a URL pública do Vercel Blob (src/lib/storage.ts).
 
 model Company {
   id                  String   @id @default(cuid())
@@ -55,14 +56,76 @@ model Company {
   notifications Notification[]
 }
 
+// ---------- Autenticação (Better Auth — src/lib/auth.ts) ----------
+// Cada usuário pertence a uma empresa; a empresa é criada no hook de cadastro.
+
 model User {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  passwordHash String
-  companyId    String
-  company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  createdAt    DateTime @default(now())
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  companyId     String
+  company       Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  @@index([companyId])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+/// Credenciais: o hash da senha (bcrypt) fica em `password` com providerId "credential".
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+/// Rate limit do Better Auth guardado no banco (funções serverless não compartilham memória).
+model RateLimit {
+  id          String @id @default(cuid())
+  key         String @unique
+  count       Int
+  lastRequest BigInt
 }
 
 model Client {

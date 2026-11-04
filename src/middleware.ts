@@ -1,16 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { jwtVerify } from "jose";
+import { getSessionCookie } from "better-auth/cookies";
 
-// Proteção rápida das rotas /app no edge. A verificação definitiva (e o companyId) vem de requireSession().
-export async function middleware(req: NextRequest) {
-  const token = req.cookies.get("session")?.value;
-  const secret = new TextEncoder().encode(process.env.AUTH_SECRET ?? "dev-secret-change-me");
-  if (token) {
-    try {
-      await jwtVerify(token, secret);
-      return NextResponse.next();
-    } catch {}
-  }
+// Barreira rápida das rotas /app no edge: só confere se existe o cookie de sessão do Better Auth.
+// A validação real da sessão (e o companyId) vem de requireSession() em src/lib/auth.ts.
+export function middleware(req: NextRequest) {
+  if (getSessionCookie(req)) return NextResponse.next();
   const url = req.nextUrl.clone();
   url.pathname = "/entrar";
   url.search = "";

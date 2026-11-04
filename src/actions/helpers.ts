@@ -1,6 +1,7 @@
 import "server-only";
 import { db } from "@/lib/db";
 import { parseInputDate } from "@/lib/format";
+import { persistImages } from "@/lib/storage";
 import type { EditorValue } from "@/components/DocumentEditor";
 
 export const str = (fd: FormData, k: string) => {
@@ -30,8 +31,9 @@ export async function resolveClient(companyId: string, v: EditorValue) {
 export async function sanitizeItems(companyId: string, v: EditorValue) {
   const ids = v.items.map((i) => i.catalogItemId).filter(Boolean) as string[];
   const valid = new Set((await db.catalogItem.findMany({ where: { companyId, id: { in: ids } }, select: { id: true } })).map((c) => c.id));
-  return v.items
-    .filter((i) => i.name.trim())
+  const kept = v.items.filter((i) => i.name.trim());
+  const photos = await persistImages(kept, (i) => i.photo, "itens", companyId);
+  return kept
     .map((i, position) => ({
       catalogItemId: i.catalogItemId && valid.has(i.catalogItemId) ? i.catalogItemId : null,
       type: i.type === "SERVICE" ? "SERVICE" : "PRODUCT",
@@ -40,7 +42,7 @@ export async function sanitizeItems(companyId: string, v: EditorValue) {
       unit: i.unit || "un",
       quantity: Number(i.quantity) || 0,
       unitPrice: Number(i.unitPrice) || 0,
-      photo: i.photo || null,
+      photo: photos[position],
       position,
     }));
 }

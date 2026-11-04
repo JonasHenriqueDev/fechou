@@ -7,6 +7,7 @@ import { requireSession } from "@/lib/auth";
 import { calcTotals } from "@/lib/calc";
 import { parseInputDate } from "@/lib/format";
 import { docCode, publicToken } from "@/lib/tokens";
+import { persistImages } from "@/lib/storage";
 import { applyStock, dateOrNow, nextSeq, parseEditor, resolveClient, sanitizeItems } from "./helpers";
 
 export async function saveQuote(id: string | null, fd: FormData) {
@@ -29,7 +30,10 @@ export async function saveQuote(id: string | null, fd: FormData) {
     deliveryFee: Number(v.deliveryFee) || 0,
     total,
   };
-  const photos = v.photos.map((p) => ({ image: p.image, caption: p.caption.trim() || null }));
+  const images = await persistImages(v.photos, (p) => p.image, "fotos", companyId);
+  const photos = v.photos
+    .map((p, i) => ({ image: images[i], caption: p.caption.trim() || null }))
+    .filter((p): p is { image: string; caption: string | null } => !!p.image);
 
   let quoteId = id;
   if (id) {

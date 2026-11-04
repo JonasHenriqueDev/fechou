@@ -1,7 +1,7 @@
 // Dados de demonstração. Login: demo@fechou.test / demo123
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { randomBytes } from "crypto";
+import { randomBytes, randomUUID } from "crypto";
 
 const db = new PrismaClient();
 const tok = () => randomBytes(16).toString("base64url");
@@ -9,6 +9,7 @@ const daysFromNow = (d: number) => new Date(Date.now() + d * 86400000);
 
 async function main() {
   await db.company.deleteMany({ where: { email: "demo@fechou.test" } });
+  const demoUserId = randomUUID();
 
   const company = await db.company.create({
     data: {
@@ -31,7 +32,16 @@ async function main() {
       quoteSeq: 2,
       orderSeq: 1,
       receiptSeq: 1,
-      users: { create: { name: "Demo", email: "demo@fechou.test", passwordHash: await bcrypt.hash("demo123", 10) } },
+      // Mesmo formato que o Better Auth grava: senha (bcrypt) numa Account "credential" com accountId = id do usuário.
+      users: {
+        create: {
+          id: demoUserId,
+          name: "Demo",
+          email: "demo@fechou.test",
+          emailVerified: true,
+          accounts: { create: { accountId: demoUserId, providerId: "credential", password: await bcrypt.hash("demo123", 10) } },
+        },
+      },
     },
   });
   const cid = company.id;
