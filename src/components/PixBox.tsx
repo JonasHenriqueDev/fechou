@@ -10,16 +10,22 @@ export function pixAvailable(c: PixCompany) {
   return !!c.pixKey;
 }
 
-/** QR Code Pix + copia e cola. Renderizado no servidor. */
-export async function PixBox({ company, amount, txid, title = "Pague com Pix" }: { company: PixCompany; amount: number; txid?: string; title?: string }) {
+/** Código Pix copia e cola da empresa (null se não houver chave cadastrada). */
+export function pixCode(company: PixCompany, amount: number, txid?: string) {
   if (!company.pixKey) return null;
-  const payload = pixPayload({
+  return pixPayload({
     key: company.pixKey,
     name: company.pixName || company.name,
     city: company.pixCity || company.city || "BRASIL",
     amount,
     txid,
   });
+}
+
+/** QR Code Pix + copia e cola. Renderizado no servidor. */
+export async function PixBox({ company, amount, txid, title = "Pague com Pix" }: { company: PixCompany; amount: number; txid?: string; title?: string }) {
+  const payload = pixCode(company, amount, txid);
+  if (!payload) return null;
   const qr = await QRCode.toDataURL(payload, { margin: 1, width: 280 });
   return (
     <div className="card avoid-break p-4">

@@ -7,7 +7,9 @@ import { date, inputDate, money, isOverdue } from "@/lib/format";
 import { round2 } from "@/lib/calc";
 import { Badge, PageHeader } from "@/components/ui";
 import { DocumentView } from "@/components/DocumentView";
-import { ConfirmSubmit, ShareButton, SubmitButton, WhatsAppShare } from "@/components/client";
+import { ConfirmSubmit, CopyButton, ShareButton, SubmitButton, TextShare, WhatsAppShare } from "@/components/client";
+import { pixCode } from "@/components/PixBox";
+import { documentText } from "@/lib/whatsappText";
 import { Icon } from "@/components/Icon";
 import { deleteOrder, deletePayment, registerPayment, setOrderStatus, setPaymentPlan } from "@/actions/orders";
 
@@ -31,6 +33,34 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const msg = `Olá${o.client ? `, ${o.client.name.split(" ")[0]}` : ""}! Segue ${label.toLowerCase()} nº ${o.code} de ${company.name} (${money(o.total)}). Acompanhe parcelas e pague via Pix pelo link:`;
   const nextOpen = o.installments.find((i) => !i.paidAt);
   const now = new Date();
+  const pixAmount = nextOpen ? round2(nextOpen.amount - nextOpen.paidAmount) : remaining;
+  const openInstallments = o.installments.filter((i) => !i.paidAt);
+  const text = documentText({
+    docLabel: label,
+    code: o.code,
+    companyName: company.name,
+    clientName: o.client?.name,
+    title: o.title,
+    issueDate: o.createdAt,
+    items: o.items,
+    discountType: o.discountType,
+    discountValue: o.discountValue,
+    deliveryFee: o.deliveryFee,
+    sections: [
+      { title: "Data de entrega / execução", text: o.scheduledDate ? date(o.scheduledDate) : null },
+      { title: "Já pago", text: paid > 0 ? money(paid) : null },
+      { title: "Em aberto", text: paid > 0 && remaining > 0 ? money(remaining) : null },
+      {
+        title: "Parcelas em aberto",
+        text: o.installments.length > 1 && openInstallments.length > 0
+          ? openInstallments.map((i) => `${i.number}ª ${money(i.amount - i.paidAmount)} (vence ${date(i.dueDate)})`).join("; ")
+          : null,
+      },
+      { title: "Observações", text: o.notes },
+    ],
+    closing: "Acompanhe e pague pelo link:",
+  });
+  const pix = remaining > 0 && o.status !== "CANCELED" ? pixCode(company, pixAmount, `PED${o.code}`) : null;
 
   return (
     <div>
@@ -202,6 +232,17 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               </a>
             </div>
             <ShareButton url={portal} title={`${label} ${o.code}`} />
+            <div className="border-t border-slate-100 pt-3">
+              <div className="mb-1 text-sm font-semibold">{label} em texto</div>
+              <p className="mb-2 text-xs text-slate-500">Para cliente que não abre PDF: itens, valores e parcelas direto na conversa.</p>
+              <TextShare phone={o.client?.phone} text={text} path={portal} />
+              {pix && (
+                <>
+                  <CopyButton text={pix} label={`Copiar Pix (${money(pixAmount)})`} className="btn-secondary mt-2 w-full" />
+                  <p className="mt-1 text-xs text-slate-500">Mande o código numa mensagem separada, para o cliente copiar e pagar.</p>
+                </>
+              )}
+            </div>
           </div>
 
           <div className="card space-y-2 p-4">

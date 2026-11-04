@@ -242,6 +242,43 @@ export function ShareButton({ url, title }: { url: string; title: string }) {
   );
 }
 
+/**
+ * Documento inteiro em texto (sem PDF): envia direto no WhatsApp ou copia para colar.
+ * O link do portal vai no fim, para quem quiser aprovar/assinar online.
+ */
+export function TextShare({ phone, text, path, onSent }: { phone?: string | null; text: string; path?: string; onSent?: () => Promise<void> }) {
+  const [ok, setOk] = useState(false);
+  const full = () => (path ? `${text}\n${window.location.origin}${path}` : text);
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      <button
+        type="button"
+        className="btn-secondary"
+        onClick={() => {
+          onSent?.();
+          let d = (phone ?? "").replace(/\D/g, "");
+          if (d && d.length <= 11) d = "55" + d;
+          window.open(`https://wa.me/${d}?text=${encodeURIComponent(full())}`, "_blank");
+        }}
+      >
+        <Icon name="whatsapp" className="h-4 w-4 text-[#25D366]" /> Enviar texto
+      </button>
+      <button
+        type="button"
+        className="btn-secondary"
+        onClick={async () => {
+          await navigator.clipboard.writeText(full());
+          setOk(true);
+          setTimeout(() => setOk(false), 1500);
+          onSent?.();
+        }}
+      >
+        <Icon name={ok ? "check" : "copy"} className="h-4 w-4" /> {ok ? "Copiado!" : "Copiar texto"}
+      </button>
+    </div>
+  );
+}
+
 /** Botão de WhatsApp que monta o link com a URL absoluta do portal (origin só existe no navegador). */
 export function WhatsAppShare({ phone, message, path, label = "Enviar pelo WhatsApp", className = "btn-whatsapp", onSent }: { phone?: string | null; message: string; path?: string; label?: string; className?: string; onSent?: () => Promise<void> }) {
   return (

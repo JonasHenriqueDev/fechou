@@ -6,7 +6,9 @@ import { QUOTE_STATUS } from "@/lib/constants";
 import { dateTime, money } from "@/lib/format";
 import { Badge, PageHeader } from "@/components/ui";
 import { DocumentView } from "@/components/DocumentView";
-import { ConfirmSubmit, ShareButton, WhatsAppShare } from "@/components/client";
+import { ConfirmSubmit, CopyButton, ShareButton, TextShare, WhatsAppShare } from "@/components/client";
+import { pixCode } from "@/components/PixBox";
+import { documentText } from "@/lib/whatsappText";
 import { Icon } from "@/components/Icon";
 import { convertQuoteToOrder, deleteQuote, duplicateQuote, markQuoteSent, setQuoteStatus } from "@/actions/quotes";
 
@@ -22,6 +24,27 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const portal = `/o/${q.token}`;
   const msg = `Olá${q.client ? `, ${q.client.name.split(" ")[0]}` : ""}! Segue o orçamento nº ${q.code} de ${company.name} no valor de ${money(q.total)}. Você pode visualizar, aprovar e assinar pelo link:`;
   const canApprove = !["APPROVED", "CONVERTED"].includes(q.status);
+  const text = documentText({
+    docLabel: "Orçamento",
+    code: q.code,
+    companyName: company.name,
+    clientName: q.client?.name,
+    title: q.title,
+    issueDate: q.issueDate,
+    validUntil: q.validUntil,
+    items: q.items,
+    discountType: q.discountType,
+    discountValue: q.discountValue,
+    deliveryFee: q.deliveryFee,
+    sections: [
+      { title: "Prazo de execução", text: q.executionTerm },
+      { title: "Formas de pagamento", text: q.paymentConditions },
+      { title: "Garantia", text: q.warranty },
+      { title: "Observações", text: q.notes },
+    ],
+    closing: "Para aprovar e assinar online:",
+  });
+  const pix = pixCode(company, q.total, `ORC${q.code}`);
 
   return (
     <div>
@@ -76,6 +99,17 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               </a>
             </div>
             <ShareButton url={portal} title={`Orçamento ${q.code}`} />
+            <div className="border-t border-slate-100 pt-3">
+              <div className="mb-1 text-sm font-semibold">Orçamento em texto</div>
+              <p className="mb-2 text-xs text-slate-500">Para cliente que não abre PDF: itens, valores e condições direto na conversa.</p>
+              <TextShare phone={q.client?.phone} text={text} path={portal} onSent={markQuoteSent.bind(null, q.id)} />
+              {pix && (
+                <>
+                  <CopyButton text={pix} label="Copiar Pix copia e cola" className="btn-secondary mt-2 w-full" />
+                  <p className="mt-1 text-xs text-slate-500">Mande o código numa mensagem separada, para o cliente copiar e pagar.</p>
+                </>
+              )}
+            </div>
           </div>
 
           <div className="card space-y-2 p-4 text-sm">
