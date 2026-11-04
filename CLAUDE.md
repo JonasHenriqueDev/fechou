@@ -28,7 +28,7 @@ Testes unitários cobrem as regras puras de `src/lib` (totais, parcelas, Pix, da
 
 **Banco e migrations:** mudou `prisma/schema.prisma` → `npm run db:migrate -- --name <descricao>` e commite a pasta gerada em `prisma/migrations`. Nunca use `db push`. Na Vercel, `vercel-build` roda `prisma migrate deploy` só quando `VERCEL_ENV=production` (previews compartilham o banco de produção e não migram).
 
-**Deploy:** projeto Vercel `fechou` (conta jonashenriquedev), ligado ao GitHub `JonasHenriqueDev/fechou` — push na `main` publica em produção. Neon Postgres (`fechou-db`, us-east-1) e Vercel Blob (`fechou-blob`, público) injetam as variáveis; `BETTER_AUTH_SECRET` é separado por ambiente. O `.env` local aponta para o Docker — não use `vercel env pull` para `.env.local` (o Next daria prioridade a ele e o dev passaria a usar o banco de produção).
+**Deploy:** projeto Vercel `fechou` (conta jonashenriquedev), ligado ao GitHub `JonasHenriqueDev/fechou` — push na `main` publica em produção (https://fechou-xi.vercel.app; `fechou.vercel.app` já era de outra pessoa). A Vercel bloqueia deploy com Next.js vulnerável: mantenha o `next` no último patch da 15.5. Neon Postgres (`fechou-db`, us-east-1) e Vercel Blob (`fechou-blob`, público) injetam as variáveis; `BETTER_AUTH_SECRET` é separado por ambiente. O `.env` local aponta para o Docker — não use `vercel env pull` para `.env.local` (o Next daria prioridade a ele e o dev passaria a usar o banco de produção).
 
 ## Stack
 

@@ -56,6 +56,8 @@ Acesse http://localhost:3000.
 
 ## Produção (Vercel)
 
+Produção: **https://fechou-xi.vercel.app**
+
 O projeto `fechou` na Vercel já está ligado a:
 
 - **Neon Postgres**, que injeta `DATABASE_URL` e `DATABASE_URL_UNPOOLED`;
