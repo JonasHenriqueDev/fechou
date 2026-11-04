@@ -58,7 +58,7 @@ export function AuthCard({ title, subtitle, children }: { title: string; subtitl
       <div className="w-full max-w-sm">
         <Link href="/" className="mb-6 flex items-center justify-center gap-2 text-lg font-bold">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/icon.svg" alt="" className="h-8 w-8" /> OrçaFácil
+          <img src="/icon.svg" alt="" className="h-8 w-8" /> Fechou
         </Link>
         <div className="card p-6">
           <h1 className="text-xl font-bold">{title}</h1>

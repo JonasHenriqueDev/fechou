@@ -6,7 +6,7 @@ import { Icon } from "./Icon";
 
 type Toast = { key: string; text: string; link?: string | null };
 
-const SEEN = "orcafacil:seen";
+const SEEN = "fechou:seen";
 
 function loadSeen(): Set<string> {
   try {
@@ -54,7 +54,7 @@ export function Reminders() {
         saveSeen(seen);
         setToasts((cur) => [...cur, ...fresh].slice(-4));
         if ("Notification" in window && Notification.permission === "granted") {
-          fresh.forEach((t) => new Notification("OrçaFácil", { body: t.text, icon: "/icon.svg" }));
+          fresh.forEach((t) => new Notification("Fechou", { body: t.text, icon: "/icon.svg" }));
         }
         if (data.notifications.length) router.refresh();
       } catch {}

@@ -30,7 +30,7 @@ export function FreeGenerator() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link href="/" className="flex items-center gap-2 font-bold">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icon.svg" alt="" className="h-7 w-7" /> OrçaFácil
+            <img src="/icon.svg" alt="" className="h-7 w-7" /> Fechou
           </Link>
           <Link href="/cadastro" className="btn-primary btn-sm">Salvar e enviar pelo WhatsApp →</Link>
         </div>
@@ -123,7 +123,7 @@ export function FreeGenerator() {
               <div className="flex justify-between border-t border-slate-200 pt-1 text-base font-bold"><span>Total</span><span>{money(t.total)}</span></div>
             </div>
             {notes && <div className="mt-4 whitespace-pre-line text-slate-700">{notes}</div>}
-            <div className="mt-6 text-center text-[11px] text-slate-400">Gerado gratuitamente no OrçaFácil</div>
+            <div className="mt-6 text-center text-[11px] text-slate-400">Gerado gratuitamente no Fechou</div>
           </div>
           <div className="no-print card mt-4 p-4 text-sm">
             <b>Quer aprovação online, assinatura e Pix?</b> Crie sua conta grátis e envie o link pelo WhatsApp.

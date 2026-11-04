@@ -6,7 +6,7 @@ Responda em português (pt-BR). Toda a interface e as mensagens do produto são 
 
 ## Produto
 
-OrçaFácil — SaaS web (sem instalação, responsivo para celular e PC) de orçamentos para MEI/autônomos, inspirado no app InteraUp. Fluxo central: orçamento → link público enviado pelo WhatsApp → cliente aprova com assinatura → vira pedido/OS → parcelas → recebimento (Pix) → recibo + lançamento financeiro.
+Fechou (antes chamado OrçaFácil) — SaaS web (sem instalação, responsivo para celular e PC) de orçamentos para MEI/autônomos, inspirado no app InteraUp. Fluxo central: orçamento → link público enviado pelo WhatsApp → cliente aprova com assinatura → vira pedido/OS → parcelas → recebimento (Pix) → recibo + lançamento financeiro.
 
 ## Comandos
 
@@ -14,7 +14,7 @@ OrçaFácil — SaaS web (sem instalação, responsivo para celular e PC) de or�
 npm install
 cp .env.example .env # DATABASE_URL (SQLite) e AUTH_SECRET
 npm run db:push      # cria/atualiza o banco SQLite (prisma/dev.db) a partir do schema
-npm run db:seed      # dados demo — login demo@orcafacil.test / demo123
+npm run db:seed      # dados demo — login demo@fechou.test / demo123
 npm run dev          # http://localhost:3000
 npm run typecheck    # tsc --noEmit
 npm run lint         # next lint

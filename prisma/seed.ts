@@ -1,4 +1,4 @@
-// Dados de demonstração. Login: demo@orcafacil.test / demo123
+// Dados de demonstração. Login: demo@fechou.test / demo123
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
@@ -8,7 +8,7 @@ const tok = () => randomBytes(16).toString("base64url");
 const daysFromNow = (d: number) => new Date(Date.now() + d * 86400000);
 
 async function main() {
-  await db.company.deleteMany({ where: { email: "demo@orcafacil.test" } });
+  await db.company.deleteMany({ where: { email: "demo@fechou.test" } });
 
   const company = await db.company.create({
     data: {
@@ -17,11 +17,11 @@ async function main() {
       document: "12.345.678/0001-90",
       phone: "(19) 3333-4444",
       whatsapp: "(19) 99999-0000",
-      email: "demo@orcafacil.test",
+      email: "demo@fechou.test",
       address: "Rua das Palmeiras, 100 — Centro",
       city: "Campinas",
       state: "SP",
-      pixKey: "demo@orcafacil.test",
+      pixKey: "demo@fechou.test",
       pixName: "Clima Certo",
       pixCity: "Campinas",
       instagram: "@climacerto",
@@ -31,7 +31,7 @@ async function main() {
       quoteSeq: 2,
       orderSeq: 1,
       receiptSeq: 1,
-      users: { create: { name: "Demo", email: "demo@orcafacil.test", passwordHash: await bcrypt.hash("demo123", 10) } },
+      users: { create: { name: "Demo", email: "demo@fechou.test", passwordHash: await bcrypt.hash("demo123", 10) } },
     },
   });
   const cid = company.id;
@@ -87,7 +87,7 @@ async function main() {
 
   await db.appointment.create({ data: { companyId: cid, clientId: bruno.id, title: "Executar manutenção", location: "Casa do Bruno", start: daysFromNow(2) } });
 
-  console.log("Seed concluído. Login: demo@orcafacil.test / demo123");
+  console.log("Seed concluído. Login: demo@fechou.test / demo123");
 }
 
 main().finally(() => db.$disconnect());

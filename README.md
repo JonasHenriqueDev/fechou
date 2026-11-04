@@ -1,4 +1,6 @@
-# OrçaFácil
+# Fechou
+
+> Orçamento no WhatsApp, aprovação com assinatura, Pix e recibo — tudo fechado num link.
 
 Plataforma web de orçamentos para MEI, autônomos e prestadores de serviço. Funciona no navegador do celular e do computador, sem instalar nada.
 
@@ -23,7 +25,7 @@ Plataforma web de orçamentos para MEI, autônomos e prestadores de serviço. Fu
 ```bash
 npm install
 npm run db:push
-npm run db:seed   # opcional: login demo@orcafacil.test / demo123
+npm run db:seed   # opcional: login demo@fechou.test / demo123
 npm run dev
 ```
 

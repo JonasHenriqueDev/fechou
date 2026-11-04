@@ -51,7 +51,7 @@ export function AppShell({
       )}
       <div className="min-w-0">
         <div className="truncate text-sm font-bold">{companyName}</div>
-        <div className="text-[11px] text-slate-500">OrçaFácil</div>
+        <div className="text-[11px] text-slate-500">Fechou</div>
       </div>
     </div>
   );

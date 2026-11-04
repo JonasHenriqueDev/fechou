@@ -32,7 +32,7 @@ export default async function Home() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link href="/" className="flex items-center gap-2 font-bold">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icon.svg" alt="" className="h-8 w-8" /> OrçaFácil
+            <img src="/icon.svg" alt="" className="h-8 w-8" /> Fechou
           </Link>
           <nav className="flex items-center gap-2">
             <Link href="/gerador" className="hidden text-sm font-medium text-slate-600 hover:text-slate-900 sm:block">Gerador grátis</Link>
@@ -120,7 +120,7 @@ export default async function Home() {
         <Link href="/cadastro" className="btn-primary mt-6 px-8 py-3 text-base">Criar minha conta grátis</Link>
       </section>
 
-      <footer className="border-t border-slate-100 py-6 text-center text-sm text-slate-500">© {new Date().getFullYear()} OrçaFácil</footer>
+      <footer className="border-t border-slate-100 py-6 text-center text-sm text-slate-500">© {new Date().getFullYear()} Fechou</footer>
     </div>
   );
 }

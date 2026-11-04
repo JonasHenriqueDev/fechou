@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "OrçaFácil — Orçamentos online para MEI e autônomos", template: "%s · OrçaFácil" },
+  title: { default: "Fechou — Orçamentos online para MEI e autônomos", template: "%s · Fechou" },
   description:
     "Crie orçamentos profissionais em PDF, envie pelo WhatsApp, receba aprovação online com assinatura e cobre via Pix. 100% online, no celular ou no computador.",
   manifest: "/manifest.webmanifest",

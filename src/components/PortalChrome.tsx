@@ -41,7 +41,7 @@ export function PortalChrome({ company, children, whatsText }: { company: Compan
       </header>
       <main className="mx-auto max-w-5xl px-3 py-4 sm:px-4 sm:py-6">{children}</main>
       <footer className="no-print pb-8 text-center text-xs text-slate-500">
-        Documento emitido pelo <Link href="/" className="font-semibold text-brand-600">OrçaFácil</Link>. Quer gerar o seu? É grátis.
+        Documento emitido pelo <Link href="/" className="font-semibold text-brand-600">Fechou</Link>. Quer gerar o seu? É grátis.
       </footer>
     </div>
   );
