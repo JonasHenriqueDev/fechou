@@ -4,6 +4,10 @@
 
 Plataforma web de orçamentos para MEI, autônomos e prestadores de serviço. Funciona no navegador do celular e do computador, sem instalar nada.
 
+**Em produção:** https://fechou-xi.vercel.app (há um [gerador de orçamento grátis](https://fechou-xi.vercel.app/gerador) que dispensa cadastro)
+
+**Next.js 15 · React 19 · TypeScript · PostgreSQL (Prisma) · Better Auth · Tailwind · Vitest · Vercel**
+
 ## Funcionalidades
 
 - **Orçamentos**: serviços e produtos com foto, quantidade, unidade e preço; desconto (R$ ou %), taxa de entrega, validade, prazo, formas de pagamento, garantia, observações e fotos anexas. Também dá para duplicar, aprovar ou recusar manualmente e reabrir.
