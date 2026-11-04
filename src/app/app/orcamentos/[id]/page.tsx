@@ -24,6 +24,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const portal = `/o/${q.token}`;
   const msg = `Olá${q.client ? `, ${q.client.name.split(" ")[0]}` : ""}! Segue o orçamento nº ${q.code} de ${company.name} no valor de ${money(q.total)}. Você pode visualizar, aprovar e assinar pelo link:`;
   const canApprove = !["APPROVED", "CONVERTED"].includes(q.status);
+  const pix = pixCode(company, q.total, `ORC${q.code}`);
   const text = documentText({
     docLabel: "Orçamento",
     code: q.code,
@@ -42,9 +43,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       { title: "Garantia", text: q.warranty },
       { title: "Observações", text: q.notes },
     ],
+    pix: pix ? { code: pix, amount: q.total } : null,
     closing: "Para aprovar e assinar online:",
   });
-  const pix = pixCode(company, q.total, `ORC${q.code}`);
 
   return (
     <div>

@@ -35,6 +35,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const now = new Date();
   const pixAmount = nextOpen ? round2(nextOpen.amount - nextOpen.paidAmount) : remaining;
   const openInstallments = o.installments.filter((i) => !i.paidAt);
+  const pix = remaining > 0 && o.status !== "CANCELED" ? pixCode(company, pixAmount, `PED${o.code}`) : null;
   const text = documentText({
     docLabel: label,
     code: o.code,
@@ -58,9 +59,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       },
       { title: "Observações", text: o.notes },
     ],
+    pix: pix ? { code: pix, amount: pixAmount, note: nextOpen && o.installments.length > 1 ? `${nextOpen.number}ª parcela` : undefined } : null,
     closing: "Acompanhe e pague pelo link:",
   });
-  const pix = remaining > 0 && o.status !== "CANCELED" ? pixCode(company, pixAmount, `PED${o.code}`) : null;
 
   return (
     <div>

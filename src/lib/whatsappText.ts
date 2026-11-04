@@ -31,6 +31,8 @@ export function documentText(d: {
   discountValue: number;
   deliveryFee: number;
   sections?: { title: string; text: string | null | undefined }[];
+  /** Pix copia e cola: vai numa linha só para o cliente segurar e copiar. */
+  pix?: { code: string; amount: number; note?: string } | null;
   closing?: string;
 }) {
   const t = calcTotals(d.items, d.discountType, d.discountValue, d.deliveryFee);
@@ -38,15 +40,15 @@ export function documentText(d: {
   const lines: string[] = [];
 
   const article = /^ordem/i.test(d.docLabel) ? "a" : "o";
-  lines.push(`Olá${first ? `, ${first}` : ""}! Segue ${article} ${d.docLabel.toLowerCase()} de *${d.companyName}*:`);
+  lines.push(`Olá${first ? `, ${first}` : ""}! 👋 Segue ${article} ${d.docLabel.toLowerCase()} de *${d.companyName}*:`);
   lines.push("");
-  lines.push(`*${d.docLabel.toUpperCase()} Nº ${d.code}*`);
+  lines.push(`📄 *${d.docLabel.toUpperCase()} Nº ${d.code}*`);
   if (d.title?.trim()) lines.push(d.title.trim());
-  if (d.issueDate) lines.push(`Data: ${date(d.issueDate)}`);
+  if (d.issueDate) lines.push(`📅 Data: ${date(d.issueDate)}`);
 
   const groups = [
-    { label: "Serviços", list: d.items.filter((i) => i.type === "SERVICE") },
-    { label: "Produtos", list: d.items.filter((i) => i.type !== "SERVICE") },
+    { label: "🛠️ Serviços", list: d.items.filter((i) => i.type === "SERVICE") },
+    { label: "📦 Produtos", list: d.items.filter((i) => i.type !== "SERVICE") },
   ].filter((g) => g.list.length > 0);
   const showGroups = groups.length > 1;
 
@@ -67,7 +69,7 @@ export function documentText(d: {
   if (extras) lines.push(`Subtotal: ${money(t.subtotal)}`);
   if (t.deliveryFee > 0) lines.push(`Taxa de entrega/deslocamento: ${money(t.deliveryFee)}`);
   if (t.discount > 0) lines.push(`Desconto${d.discountType === "PERCENT" ? ` (${num(d.discountValue)}%)` : ""}: - ${money(t.discount)}`);
-  lines.push(`*TOTAL: ${money(t.total)}*`);
+  lines.push(`💰 *TOTAL: ${money(t.total)}*`);
 
   for (const s of d.sections ?? []) {
     if (s.text?.trim()) {
@@ -77,11 +79,16 @@ export function documentText(d: {
   }
   if (d.validUntil) {
     lines.push("");
-    lines.push(`Válido até ${date(d.validUntil)}.`);
+    lines.push(`⏳ Válido até ${date(d.validUntil)}.`);
+  }
+  if (d.pix?.code) {
+    lines.push("");
+    lines.push(`💠 *Pix copia e cola* (${money(d.pix.amount)})${d.pix.note ? ` — ${d.pix.note}` : ""}:`);
+    lines.push(d.pix.code);
   }
   if (d.closing) {
     lines.push("");
-    lines.push(d.closing);
+    lines.push(`👉 ${d.closing}`);
   }
   return lines.join("\n");
 }
