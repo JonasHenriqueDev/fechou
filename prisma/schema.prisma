@@ -1,0 +1,309 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// SQLite para desenvolvimento. Para produção, troque para "postgresql"
+// e ajuste DATABASE_URL — o schema não usa nada específico do SQLite.
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Valores monetários são Float em reais, sempre arredondados com round2() (src/lib/calc.ts).
+// Campos "status"/"type" são String porque o SQLite não tem enum; os valores válidos
+// estão documentados em src/lib/constants.ts.
+
+model Company {
+  id                  String   @id @default(cuid())
+  name                String
+  slogan              String?
+  document            String?
+  phone               String?
+  whatsapp            String?
+  email               String?
+  address             String?
+  city                String?
+  state               String?
+  logo                String?
+  signature           String?
+  primaryColor        String   @default("#1d5cf1")
+  pixKey              String?
+  pixName             String?
+  pixCity             String?
+  instagram           String?
+  facebook            String?
+  youtube             String?
+  website             String?
+  defaultValidityDays Int      @default(30)
+  defaultConditions   String?
+  defaultWarranty     String?
+  defaultNotes        String?
+  quoteSeq            Int      @default(0)
+  orderSeq            Int      @default(0)
+  receiptSeq          Int      @default(0)
+  createdAt           DateTime @default(now())
+
+  users         User[]
+  clients       Client[]
+  catalog       CatalogItem[]
+  quotes        Quote[]
+  orders        Order[]
+  payments      Payment[]
+  receipts      Receipt[]
+  transactions  Transaction[]
+  appointments  Appointment[]
+  notifications Notification[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  companyId    String
+  company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name      String
+  document  String?
+  phone     String?
+  phone2    String?
+  email     String?
+  address   String?
+  notes     String?
+  createdAt DateTime @default(now())
+
+  quotes       Quote[]
+  orders       Order[]
+  payments     Payment[]
+  appointments Appointment[]
+
+  @@index([companyId])
+}
+
+model CatalogItem {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type        String // SERVICE | PRODUCT
+  name        String
+  description String?
+  unit        String   @default("un")
+  price       Float    @default(0)
+  cost        Float    @default(0)
+  trackStock  Boolean  @default(false)
+  stock       Float    @default(0)
+  photo       String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  quoteItems QuoteItem[]
+  orderItems OrderItem[]
+
+  @@index([companyId])
+}
+
+model Quote {
+  id                String    @id @default(cuid())
+  companyId         String
+  company           Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  clientId          String?
+  client            Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  code              String
+  token             String    @unique
+  status            String    @default("DRAFT") // DRAFT | SENT | VIEWED | APPROVED | REJECTED | CONVERTED
+  title             String?
+  issueDate         DateTime  @default(now())
+  validUntil        DateTime?
+  executionTerm     String?
+  paymentConditions String?
+  warranty          String?
+  notes             String?
+  discountType      String    @default("VALUE") // VALUE | PERCENT
+  discountValue     Float     @default(0)
+  deliveryFee       Float     @default(0)
+  total             Float     @default(0)
+  viewCount         Int       @default(0)
+  viewedAt          DateTime?
+  approvedAt        DateTime?
+  approvedByName    String?
+  clientSignature   String?
+  rejectedAt        DateTime?
+  rejectReason      String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  items  QuoteItem[]
+  photos QuotePhoto[]
+  orders Order[]
+
+  @@index([companyId])
+}
+
+model QuoteItem {
+  id            String       @id @default(cuid())
+  quoteId       String
+  quote         Quote        @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  catalogItemId String?
+  catalogItem   CatalogItem? @relation(fields: [catalogItemId], references: [id], onDelete: SetNull)
+  type          String // SERVICE | PRODUCT
+  name          String
+  description   String?
+  unit          String       @default("un")
+  quantity      Float        @default(1)
+  unitPrice     Float        @default(0)
+  photo         String?
+  position      Int          @default(0)
+}
+
+model QuotePhoto {
+  id      String  @id @default(cuid())
+  quoteId String
+  quote   Quote   @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  image   String
+  caption String?
+}
+
+model Order {
+  id            String    @id @default(cuid())
+  companyId     String
+  company       Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  clientId      String?
+  client        Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  quoteId       String?
+  quote         Quote?    @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  code          String
+  token         String    @unique
+  kind          String    @default("ORDER") // ORDER | SERVICE_ORDER
+  status        String    @default("OPEN") // OPEN | IN_PROGRESS | DONE | CANCELED
+  title         String?
+  scheduledDate DateTime?
+  notes         String?
+  discountType  String    @default("VALUE")
+  discountValue Float     @default(0)
+  deliveryFee   Float     @default(0)
+  total         Float     @default(0)
+  stockApplied  Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  items        OrderItem[]
+  installments Installment[]
+  payments     Payment[]
+
+  @@index([companyId])
+}
+
+model OrderItem {
+  id            String       @id @default(cuid())
+  orderId       String
+  order         Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  catalogItemId String?
+  catalogItem   CatalogItem? @relation(fields: [catalogItemId], references: [id], onDelete: SetNull)
+  type          String
+  name          String
+  description   String?
+  unit          String       @default("un")
+  quantity      Float        @default(1)
+  unitPrice     Float        @default(0)
+  unitCost      Float        @default(0)
+  photo         String?
+  position      Int          @default(0)
+}
+
+model Installment {
+  id         String    @id @default(cuid())
+  orderId    String
+  order      Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  number     Int
+  dueDate    DateTime
+  amount     Float
+  paidAmount Float     @default(0)
+  paidAt     DateTime?
+
+  payments Payment[]
+}
+
+model Payment {
+  id            String       @id @default(cuid())
+  companyId     String
+  company       Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  orderId       String?
+  order         Order?       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  installmentId String?
+  installment   Installment? @relation(fields: [installmentId], references: [id], onDelete: SetNull)
+  clientId      String?
+  client        Client?      @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  amount        Float
+  method        String // PIX | CASH | CARD | TRANSFER | BOLETO | OTHER
+  paidAt        DateTime     @default(now())
+  notes         String?
+  createdAt     DateTime     @default(now())
+
+  receipt     Receipt?
+  transaction Transaction?
+}
+
+model Receipt {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  paymentId   String   @unique
+  payment     Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  code        String
+  token       String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type        String // INCOME | EXPENSE
+  category    String
+  description String
+  amount      Float
+  date        DateTime @default(now())
+  paymentId   String?  @unique
+  payment     Payment? @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@index([companyId, date])
+}
+
+model Appointment {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  clientId    String?
+  client      Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  title       String
+  description String?
+  location    String?
+  start       DateTime
+  end         DateTime?
+  remindMin   Int      @default(60)
+  done        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([companyId, start])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type      String // QUOTE_VIEWED | QUOTE_APPROVED | QUOTE_REJECTED | ORDER_VIEWED
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([companyId, read])
+}
